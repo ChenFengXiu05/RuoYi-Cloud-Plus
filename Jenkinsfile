@@ -60,9 +60,13 @@ pipeline {
                         usernameVariable: "SSH_USER",
                         keyFileVariable: "SSH_PRIVATE_KEY"
                     )]) {
-                        // 新增：验证变量是否存在
-                        sh "echo '注入的SSH用户名：\${SSH_USER}'"
-                        sh "echo '注入的私钥路径：\${SSH_PRIVATE_KEY}'"
+                        sh """
+                            echo '注入的SSH用户名：\${SSH_USER}'  # 反斜杠转义，让Shell解析
+                            echo '注入的私钥路径：\${SSH_PRIVATE_KEY}'
+                            # 修复2：明确指定私钥路径（-i 参数），使用解析后的变量
+                            ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no \${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
+                            scp -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no -r \${WORKSPACE}/* \${SSH_USER}@${K8S_NODE_IP}:\${PROJECT_DIR}/
+                        """
                         sh """
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
                             # 同步本地代码到节点（覆盖旧文件，保留容器数据卷）
