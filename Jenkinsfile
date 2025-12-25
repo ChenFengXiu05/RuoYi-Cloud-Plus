@@ -85,20 +85,19 @@ pipeline {
                     )]) {
                         sh """
                             # 远程连接K8s节点，执行Docker Compose命令
-                            ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
-                                # 进入项目目录
-                                cd ${PROJECT_DIR}/script/docker
-                                # 可选：停止并删除旧容器（更新应用时用，避免缓存问题）
-                                docker-compose down || true
-                                # 启动/更新应用（-d后台运行，--build强制构建本地镜像，无需Harbor）
-                                docker-compose up -d --build
-                                # 验证容器状态
-                                echo "=== 容器运行状态 ==="
-                                docker-compose ps
-                                echo "=== 节点Docker信息 ==="
-                                docker info | grep "Server Version"
-                            EOF
-                        """
+                    ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no \${SSH_USER}@${K8S_NODE_IP} << EOF
+cd ${PROJECT_DIR}/script/docker
+# 拉取镜像（可选，手动触发拉取）
+docker-compose pull
+# 启动服务
+docker-compose down || true
+docker-compose up -d --build
+echo "=== 容器运行状态 ==="
+docker-compose ps
+echo "=== 节点Docker信息 ==="
+docker info | grep "Server Version"
+EOF
+                """
                     }
                     echo "✅ Docker Compose部署命令执行完成"
                 }
