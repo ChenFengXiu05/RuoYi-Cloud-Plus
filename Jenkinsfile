@@ -12,10 +12,24 @@ pipeline {
       # 2. 必须保留jnlp容器（Jenkins Agent的核心通信容器）
       - name: jnlp
         image: jenkins/inbound-agent:3345.v03dee9b_f88fc-1  # 与你实际拉取的镜像一致
+        env:
+        - name: https_proxy
+          value: "http://127.0.0.1:7890"  # 替换为你的代理IP和端口
+        - name: http_proxy
+          value: "http://127.0.0.1:7890"  # 替换为你的代理IP和端口
+        - name: all_proxy
+          value: "socks5://127.0.0.1:7890"  # 替换为你的代理IP和端口
         args: ["\$(JENKINS_SECRET)", "\$(JENKINS_NAME)"]  # 自动注入Master地址/令牌
       # 3. 你的ssh-client容器
       - name: ssh-client
         image: alpine:3.18
+        env:
+        - name: https_proxy
+          value: "http://127.0.0.1:7890"  # 替换为你的代理IP和端口
+        - name: http_proxy
+          value: "http://127.0.0.1:7890"  # 替换为你的代理IP和端口
+        - name: all_proxy
+          value: "socks5://127.0.0.1:7890"  # 替换为你的代理IP和端
         command: ['sh', '-c', 'apk add --no-cache openssh-client git && sleep infinity']
         tty: true
     """
