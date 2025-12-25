@@ -45,7 +45,7 @@ pipeline {
                     git url: "${GIT_REPO}", credentialsId: "${GIT_CRED_ID}", branch: "${GIT_BRANCH}"
                     echo "✅ 代码拉取成功，当前工作目录：${WORKSPACE}"
                     // 验证docker-compose.yml是否存在
-                    sh "ls -l ${WORKSPACE} | grep docker-compose.yml || (echo '❌ 未找到docker-compose.yml' && exit 1)"
+                    sh "ls -l ${WORKSPACE}/script/docker | grep docker-compose.yml || (echo '❌ 未找到docker-compose.yml' && exit 1)"
                 }
             }
         }
@@ -78,7 +78,7 @@ pipeline {
                             # 远程连接K8s节点，执行Docker Compose命令
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
                                 # 进入项目目录
-                                cd ${PROJECT_DIR}
+                                cd ${PROJECT_DIR}/script/docker
                                 # 可选：停止并删除旧容器（更新应用时用，避免缓存问题）
                                 docker-compose down || true
                                 # 启动/更新应用（-d后台运行，--build强制构建本地镜像，无需Harbor）
