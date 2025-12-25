@@ -2,18 +2,23 @@ pipeline {
 // 适配K8s Jenkins环境，使用动态Agent（无模板可简化为agent any）
     agent {
         kubernetes {
-            label 'builder'  // 对应你的K8s Agent模板标签，无则改为agent any
+            // 1. 不要用label，改用inheritFrom（复用K8s插件中预定义的Pod模板）
+            // 或直接在yaml中配置jnlp容器的完整通信参数
             yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  # 仅需SSH客户端容器，用于连接K8s内部节点
-  - name: ssh-client
-    image: alpine:3.18
-    command: ['sh', '-c', 'apk add --no-cache openssh-client git && sleep infinity']
-    tty: true
-"""
+    apiVersion: v1
+    kind: Pod
+    spec:
+      containers:
+      # 2. 必须保留jnlp容器（Jenkins Agent的核心通信容器）
+      - name: jnlp
+        image: jenkins/inbound-agent:3345.v03dee9b_f88fc-1  # 与你实际拉取的镜像一致
+        args: ["\$(JENKINS_SECRET)", "\$(JENKINS_NAME)"]  # 自动注入Master地址/令牌
+      # 3. 你的ssh-client容器
+      - name: ssh-client
+        image: alpine:3.18
+        command: ['sh', '-c', 'apk add --no-cache openssh-client git && sleep infinity']
+        tty: true
+    """
         }
     }
 
