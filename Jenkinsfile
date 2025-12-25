@@ -63,7 +63,6 @@ pipeline {
                         // 新增：验证变量是否存在
                         sh "echo '注入的SSH用户名：\${SSH_USER}'"
                         sh "echo '注入的私钥路径：\${SSH_PRIVATE_KEY}'"
-                            # 确保节点上项目目录存在（不存在则创建）
                         sh """
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
                             # 同步本地代码到节点（覆盖旧文件，保留容器数据卷）
