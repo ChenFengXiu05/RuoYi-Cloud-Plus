@@ -109,7 +109,7 @@ pipeline {
                 container('ssh-client') {
                     withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${SSH_USER@${K8S_NODE_IP} << EOF
+                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
                                 cd ${PROJECT_DIR}
                                 # 查看应用日志（最近20行）
                                 echo "=== 应用日志（最近20行） ==="
