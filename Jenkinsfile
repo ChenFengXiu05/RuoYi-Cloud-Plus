@@ -13,7 +13,7 @@ spec:
     args: ["\$(JENKINS_SECRET)", "\$(JENKINS_NAME)"]
   # 构建容器（包含Maven+JDK，用于打包、构建/推送镜像）
   - name: build-container
-    image: maven:3.8.8-openjdk-8-alpine
+    image: maven:3.8.7-openjdk-17-alpine
     command: ['sh', '-c', 'apk add --no-cache openssh-client git docker-cli && sleep infinity']
     tty: true
     # 挂载Docker套接字（用于在容器内操作Docker，构建/推送镜像）
