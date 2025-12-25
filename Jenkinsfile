@@ -67,11 +67,6 @@ pipeline {
                             ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no \${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
                             scp -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no -r \${WORKSPACE}/* \${SSH_USER}@${K8S_NODE_IP}:\${PROJECT_DIR}/
                         """
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
-                            # 同步本地代码到节点（覆盖旧文件，保留容器数据卷）
-                            scp -o StrictHostKeyChecking=no -r ${WORKSPACE}/* ${SSH_USER}@${K8S_NODE_IP}:${PROJECT_DIR}/
-                        """
                     }
                     echo "✅ 代码同步成功，K8s节点项目目录：${PROJECT_DIR}"
                 }
@@ -86,7 +81,7 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
                         sh """
                             # 远程连接K8s节点，执行Docker Compose命令
-                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
+                            ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
                                 # 进入项目目录
                                 cd ${PROJECT_DIR}/script/docker
                                 # 可选：停止并删除旧容器（更新应用时用，避免缓存问题）
@@ -113,7 +108,7 @@ pipeline {
                 container('ssh-client') {
                     withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
+                            ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
                                 cd ${PROJECT_DIR}
                                 # 查看应用日志（最近20行）
                                 echo "=== 应用日志（最近20行） ==="
