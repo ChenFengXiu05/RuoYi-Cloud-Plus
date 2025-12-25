@@ -31,7 +31,7 @@ pipeline {
         K8S_NODE_IP = "192.168.11.52"  // K8s内部节点IP（如节点内网IP）
         PROJECT_DIR = "/opt/project"  // 节点上项目存放目录（已提前创建）
         // 3. 凭证ID（*必填，与Jenkins中配置的一致）
-        GIT_CRED_ID = "gitee-pw"
+        GIT_CRED_ID = "github-pw"
         SSH_CRED_ID = "k8s-node-ssh-cred"
     }
 
@@ -55,7 +55,7 @@ pipeline {
             steps {
                 echo "📤 开始同步代码到K8s节点：${K8S_NODE_IP}:${PROJECT_DIR}"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "root")]) {
                         sh """
                             # 确保节点上项目目录存在（不存在则创建）
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
@@ -73,7 +73,7 @@ pipeline {
             steps {
                 echo "🚀 开始在K8s节点执行Docker Compose部署"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "root")]) {
                         sh """
                             # 远程连接K8s节点，执行Docker Compose命令
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
@@ -101,9 +101,9 @@ pipeline {
             steps {
                 echo "🔎 开始验证K8s节点上的应用状态"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "root")]) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
+                            ssh -o StrictHostKeyChecking=no ${root}@${K8S_NODE_IP} << EOF
                                 cd ${PROJECT_DIR}
                                 # 查看应用日志（最近20行）
                                 echo "=== 应用日志（最近20行） ==="
