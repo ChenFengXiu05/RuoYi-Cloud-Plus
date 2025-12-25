@@ -78,7 +78,11 @@ pipeline {
             steps {
                 echo "🚀 开始在K8s节点执行Docker Compose部署"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: "${SSH_CRED_ID}",
+                        usernameVariable: "SSH_USER",
+                        keyFileVariable: "SSH_PRIVATE_KEY"
+                    )]) {
                         sh """
                             # 远程连接K8s节点，执行Docker Compose命令
                             ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
@@ -106,7 +110,11 @@ pipeline {
             steps {
                 echo "🔎 开始验证K8s节点上的应用状态"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: "${SSH_CRED_ID}",
+                        usernameVariable: "SSH_USER",
+                        keyFileVariable: "SSH_PRIVATE_KEY"
+                    )]) {
                         sh """
                             ssh -i \${SSH_PRIVATE_KEY} -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
                                 cd ${PROJECT_DIR}
