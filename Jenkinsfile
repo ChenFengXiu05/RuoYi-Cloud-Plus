@@ -55,9 +55,16 @@ pipeline {
             steps {
                 echo "📤 开始同步代码到K8s节点：${K8S_NODE_IP}:${PROJECT_DIR}"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "root")]) {
-                        sh """
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: "${SSH_CRED_ID}",
+                        usernameVariable: "SSH_USER",
+                        keyFileVariable: "SSH_PRIVATE_KEY"
+                    )]) {
+                        // 新增：验证变量是否存在
+                        sh "echo '注入的SSH用户名：\${SSH_USER}'"
+                        sh "echo '注入的私钥路径：\${SSH_PRIVATE_KEY}'"
                             # 确保节点上项目目录存在（不存在则创建）
+                        sh """
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} "mkdir -p ${PROJECT_DIR}"
                             # 同步本地代码到节点（覆盖旧文件，保留容器数据卷）
                             scp -o StrictHostKeyChecking=no -r ${WORKSPACE}/* ${SSH_USER}@${K8S_NODE_IP}:${PROJECT_DIR}/
@@ -73,7 +80,7 @@ pipeline {
             steps {
                 echo "🚀 开始在K8s节点执行Docker Compose部署"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "root")]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
                         sh """
                             # 远程连接K8s节点，执行Docker Compose命令
                             ssh -o StrictHostKeyChecking=no ${SSH_USER}@${K8S_NODE_IP} << EOF
@@ -101,9 +108,9 @@ pipeline {
             steps {
                 echo "🔎 开始验证K8s节点上的应用状态"
                 container('ssh-client') {
-                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "root")]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: "${SSH_CRED_ID}", usernameVariable: "SSH_USER")]) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no ${root}@${K8S_NODE_IP} << EOF
+                            ssh -o StrictHostKeyChecking=no ${SSH_USERS@${K8S_NODE_IP} << EOF
                                 cd ${PROJECT_DIR}
                                 # 查看应用日志（最近20行）
                                 echo "=== 应用日志（最近20行） ==="
