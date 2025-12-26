@@ -104,7 +104,7 @@ SETTINGSEOF
                         fi
 
                         # 执行Maven打包（跳过测试，加速构建）
-                        mvn clean package -Dmaven.test.skip=true -P prod
+                        mvn clean install -D maven.test.skip=true -P prod
 
                         # 验证打包产物
                         if [ ! -f "${WORKSPACE}/ruoyi-gateway/target/ruoyi-gateway.jar" ]; then
