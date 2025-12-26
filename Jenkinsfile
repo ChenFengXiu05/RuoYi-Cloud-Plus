@@ -13,9 +13,9 @@ spec:
     args: ["\$(JENKINS_SECRET)", "\$(JENKINS_NAME)"]
   # 构建容器（包含Maven+JDK，用于打包、构建/推送镜像）
   - name: build-container
-    image: maven:3.8.3-openjdk-17-slim
-    command: ['sh', '-c', 'apt-get update && apt-get install -y --no-install-recommends openssh-client git docker.io && rm -rf /var/lib/apt/lists/* && sleep infinity']
+    image: 192.168.11.50:30003/devops/maven-docker:3.8.3-openjdk-17-slim
     tty: true
+    command: ["sleep", "infinity"]
     # 挂载Docker套接字（用于在容器内操作Docker，构建/推送镜像）
     volumeMounts:
     - name: docker-sock
