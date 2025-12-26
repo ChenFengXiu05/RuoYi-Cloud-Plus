@@ -11,7 +11,7 @@ spec:
   containers:
   # Jenkins Agent核心通信容器
   - name: jnlp
-    image: jenkins/inbound-agent:3345.v03dee9b_f88fc-1
+    image: 192.168.11.50:30003/devops/inbound-agent:3345.v03dee9b_f88fc-1
     args: ["\$(JENKINS_SECRET)", "\$(JENKINS_NAME)"]
   # 构建容器（包含Maven+JDK，用于打包、构建/推送镜像）
   - name: build-container
