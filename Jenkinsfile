@@ -6,6 +6,8 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  imagePullSecrets:
+  - name: regcred
   containers:
   # Jenkins Agent核心通信容器
   - name: jnlp
