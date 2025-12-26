@@ -13,7 +13,7 @@ spec:
     args: ["\$(JENKINS_SECRET)", "\$(JENKINS_NAME)"]
   # 构建容器（包含Maven+JDK，用于打包、构建/推送镜像）
   - name: build-container
-    image: maven:3.8.7-openjdk-17-alpine
+    image: maven:3.8.4-openjdk-17
     command: ['sh', '-c', 'apk add --no-cache openssh-client git docker-cli && sleep infinity']
     tty: true
     # 挂载Docker套接字（用于在容器内操作Docker，构建/推送镜像）
@@ -36,7 +36,7 @@ spec:
         GIT_REPO = "https://github.com/ChenFengXiu05/RuoYi-Cloud-Plus.git"
         GIT_BRANCH = "2.X"
         // 镜像仓库配置（需确保构建机/部署机能访问，私有仓库需配置凭证）
-        IMAGE_REGISTRY = "harbor.example.com" // 替换为你的镜像仓库地址（如Docker Hub可省略）
+        IMAGE_REGISTRY = "192.168.11.50:30003" // 替换为你的镜像仓库地址（如Docker Hub可省略）
         IMAGE_NAMESPACE = "ruoyi"              // 镜像命名空间/用户名
         IMAGE_TAG = "2.5.2"                    // 镜像标签
         // 部署机器配置
