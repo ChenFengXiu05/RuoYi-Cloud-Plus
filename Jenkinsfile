@@ -14,7 +14,7 @@ spec:
   # 构建容器（包含Maven+JDK，用于打包、构建/推送镜像）
   - name: build-container
     image: maven:3.8.3-openjdk-17-slim
-    command: ['sh', '-c', 'apk add --no-cache openssh-client git docker-cli && sleep infinity']
+    command: ['sh', '-c', 'apt-get update && apt-get install -y --no-install-recommends openssh-client git docker.io && rm -rf /var/lib/apt/lists/* && sleep infinity']
     tty: true
     # 挂载Docker套接字（用于在容器内操作Docker，构建/推送镜像）
     volumeMounts:
